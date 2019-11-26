@@ -12,10 +12,11 @@ import com.byfrunze.mymovies.data.Movie;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
-    private ArrayList<Movie> movies;
+    private List<Movie> movies;
     private OnPosterClickListener onPosterClickListener;
     private OnReachEndListener onReachEndListener;
 
@@ -35,18 +36,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         void onReachEnd();
     }
 
-    public void addMovies(ArrayList<Movie> movies){
+    public void addMovies(List<Movie> movies){
         this.movies.addAll(movies);
         notifyDataSetChanged();
     }
 
-    public ArrayList<Movie> getMovies() {
+    public List<Movie> getMovies() {
         return movies;
-    }
-
-    public void setMovies(ArrayList<Movie> movies) {
-        this.movies = movies;
-        notifyDataSetChanged();
     }
 
 
@@ -63,12 +59,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        if( position == movies.size() - 4 && onReachEndListener != null){
+        if( position > movies.size() - 4 && onReachEndListener != null){
             onReachEndListener.onReachEnd();
         }
         Movie movie = movies.get(position);
         ImageView imageView = holder.imageViewSmallPoster;
         Picasso.get().load(movie.getPosterPath()).into(imageView);
+    }
+
+    public void setMovies(List<Movie> movies) {
+        this.movies = movies;
     }
 
     @Override

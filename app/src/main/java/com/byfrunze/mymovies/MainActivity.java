@@ -1,6 +1,10 @@
 package com.byfrunze.mymovies;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,6 +17,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.byfrunze.mymovies.data.MainViewModel;
 import com.byfrunze.mymovies.data.Movie;
 import com.byfrunze.mymovies.utils.JSONUtils;
 import com.byfrunze.mymovies.utils.NetWorkUtils;
@@ -20,6 +25,7 @@ import com.byfrunze.mymovies.utils.NetWorkUtils;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView textViewTop;
     private TextView textViewPop;
 
+    private MainViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         textViewPop = findViewById(R.id.textViewPopularity);
         textViewTop = findViewById(R.id.textViewTopRatred);
+
+        viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         movieAdapter = new MovieAdapter();
@@ -60,6 +70,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onReachEnd() {
                 Toast.makeText(MainActivity.this, "END",Toast.LENGTH_SHORT);
+            }
+        });
+        LiveData<List<Movie>> moviesFromLiveData = viewModel.getMovies();
+        moviesFromLiveData.observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(List<Movie> movies) {
+                movieAdapter.setMovies(movies);
             }
         });
     }
@@ -86,9 +103,18 @@ public class MainActivity extends AppCompatActivity {
             textViewPop.setTextColor(getResources().getColor(R.color.colorAccent));
             methodOfSort = NetWorkUtils.POPULARITY;
         }
-        JSONObject jsonObject = NetWorkUtils.getJSONFromNetWork(methodOfSort,1);
+        downloadData(methodOfSort, 1);
+
+    }
+    private void downloadData(int methodOfSort, int page){
+        JSONObject jsonObject = NetWorkUtils.getJSONFromNetWork(methodOfSort,page);
         ArrayList<Movie> movies = JSONUtils.getMoviesFromJSON(jsonObject);
-        movieAdapter.setMovies(movies);
+        if(movies != null && !movies.isEmpty()){
+            viewModel.deleteAllMovies();
+            for(Movie movie : movies){
+                viewModel.insertMovie(movie);
+            }
+        }
 
     }
 }
