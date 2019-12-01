@@ -46,7 +46,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
 
-    MovieAdapter(){
+    public MovieAdapter(){
         movies = new ArrayList<>();
     }
 
@@ -63,12 +63,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             onReachEndListener.onReachEnd();
         }
         Movie movie = movies.get(position);
-        ImageView imageView = holder.imageViewSmallPoster;
-        Picasso.get().load(movie.getPosterPath()).into(imageView);
+        Picasso.get().load(movie.getPosterPath()).into(holder.imageViewSmallPoster);
+
     }
 
     public void setMovies(List<Movie> movies) {
         this.movies = movies;
+        notifyDataSetChanged();
     }
 
     @Override

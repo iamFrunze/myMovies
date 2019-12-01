@@ -1,5 +1,6 @@
 package com.byfrunze.mymovies;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -9,8 +10,12 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
@@ -38,15 +43,40 @@ public class MainActivity extends AppCompatActivity {
     private MainViewModel viewModel;
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.itemMain:
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.itemFavourite:
+                Intent intentToFavourite = new Intent(this, FavouriteActivity.class);
+                startActivity(intentToFavourite);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+
         switchSort = findViewById(R.id.switchSort);
         recyclerView = findViewById(R.id.recyclerView);
         textViewPop = findViewById(R.id.textViewPopularity);
         textViewTop = findViewById(R.id.textViewTopRatred);
 
-        viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         movieAdapter = new MovieAdapter();
@@ -63,13 +93,16 @@ public class MainActivity extends AppCompatActivity {
         movieAdapter.setOnPosterClickListener(new MovieAdapter.OnPosterClickListener() {
             @Override
             public void onPosterClick(int position) {
-                Toast.makeText(MainActivity.this, "CLICK" + position, Toast.LENGTH_SHORT).show();
+                Movie movie = movieAdapter.getMovies().get(position);
+                Intent intent = new Intent(MainActivity.this, DeteailActivity.class);
+                intent.putExtra("id", movie.getId());
+                startActivity(intent);
             }
         });
         movieAdapter.setOnReachEndListener(new MovieAdapter.OnReachEndListener() {
             @Override
             public void onReachEnd() {
-                Toast.makeText(MainActivity.this, "END",Toast.LENGTH_SHORT);
+                Toast.makeText(MainActivity.this, "END", Toast.LENGTH_SHORT);
             }
         });
         LiveData<List<Movie>> moviesFromLiveData = viewModel.getMovies();
@@ -91,14 +124,13 @@ public class MainActivity extends AppCompatActivity {
         switchSort.setChecked(true);
     }
 
-    private void setMethodpfSort(boolean isTopRated){
+    private void setMethodpfSort(boolean isTopRated) {
         int methodOfSort;
-        if(isTopRated){
+        if (isTopRated) {
             textViewTop.setTextColor(getResources().getColor(R.color.colorAccent));
             textViewPop.setTextColor(getResources().getColor(R.color.white_color));
             methodOfSort = NetWorkUtils.TOP_RATED;
-        }
-        else{
+        } else {
             textViewTop.setTextColor(getResources().getColor(R.color.white_color));
             textViewPop.setTextColor(getResources().getColor(R.color.colorAccent));
             methodOfSort = NetWorkUtils.POPULARITY;
@@ -106,12 +138,14 @@ public class MainActivity extends AppCompatActivity {
         downloadData(methodOfSort, 1);
 
     }
-    private void downloadData(int methodOfSort, int page){
-        JSONObject jsonObject = NetWorkUtils.getJSONFromNetWork(methodOfSort,page);
+
+    private void downloadData(int methodOfSort, int page) {
+        JSONObject jsonObject = NetWorkUtils.getJSONFromNetWork(methodOfSort, page);
         ArrayList<Movie> movies = JSONUtils.getMoviesFromJSON(jsonObject);
-        if(movies != null && !movies.isEmpty()){
+        if (movies != null && !movies.isEmpty()) {
             viewModel.deleteAllMovies();
-            for(Movie movie : movies){
+            for (Movie movie : movies) {
+                Log.i("MOV", movie.getTitle());
                 viewModel.insertMovie(movie);
             }
         }

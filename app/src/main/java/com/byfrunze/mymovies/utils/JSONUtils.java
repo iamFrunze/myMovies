@@ -37,7 +37,6 @@ public class JSONUtils {
             JSONArray jsonArray = jsonObject.getJSONArray(KEY_RESULTS);
             int size = jsonArray.length();
             for (int i = 0; i < size; i++) {
-                Log.i("SIZE", i + "" + size);
                 JSONObject objectMovie = jsonArray.getJSONObject(i);
                 int id = objectMovie.getInt(KEY_ID);
                 int voteCount = objectMovie.getInt(KEY_VOTE_COUNT);
@@ -53,6 +52,7 @@ public class JSONUtils {
 
                 Movie movie = new Movie(id, voteCount, title, originalTitle, overview, posterPath,
                         backdropPath, voteAverage, releaseDate, bigPosterPath);
+
                 result.add(movie);
                 Log.i("SIZERES", result.size() + "");
             }
