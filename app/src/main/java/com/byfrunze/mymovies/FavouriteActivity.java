@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,7 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.byfrunze.mymovies.R;
+import com.byfrunze.mymovies.adapters.MovieAdapter;
 import com.byfrunze.mymovies.data.FavouriteMovie;
 import com.byfrunze.mymovies.data.MainViewModel;
 import com.byfrunze.mymovies.data.Movie;

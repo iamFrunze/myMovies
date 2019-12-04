@@ -4,22 +4,37 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.byfrunze.mymovies.R;
+import com.byfrunze.mymovies.adapters.ReviewAdapter;
+import com.byfrunze.mymovies.adapters.TreailerAdapter;
 import com.byfrunze.mymovies.data.FavouriteMovie;
 import com.byfrunze.mymovies.data.MainViewModel;
 import com.byfrunze.mymovies.data.Movie;
+import com.byfrunze.mymovies.data.Review;
+import com.byfrunze.mymovies.data.Trailer;
+import com.byfrunze.mymovies.utils.JSONUtils;
+import com.byfrunze.mymovies.utils.NetWorkUtils;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONObject;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 public class DeteailActivity extends AppCompatActivity {
 
@@ -32,6 +47,11 @@ public class DeteailActivity extends AppCompatActivity {
     private TextView textViewOverview;
     private Movie movie;
     private FavouriteMovie favouriteMovie;
+
+    private RecyclerView recyclerViewTrailers;
+    private RecyclerView recyclerViewReviews;
+    private ReviewAdapter reviewAdapter;
+    private TreailerAdapter treailerAdapter;
 
     private int id;
 
@@ -66,6 +86,29 @@ public class DeteailActivity extends AppCompatActivity {
         textViewReleaseDate.setText(movie.getReleaseDate());
         textViewOverview.setText(movie.getOverview());
         setFavourite();
+
+        recyclerViewTrailers = findViewById(R.id.recycleViewTrailer);
+        recyclerViewReviews = findViewById(R.id.recycleViewReviews);
+        reviewAdapter = new ReviewAdapter();
+        treailerAdapter = new TreailerAdapter();
+        treailerAdapter.setOnTrailerClickListener(new TreailerAdapter.OnTrailerClickListener() {
+            @Override
+            public void onTrailerClick(String url) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(intent);
+            }
+        });
+        recyclerViewReviews.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewTrailers.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewReviews.setAdapter(reviewAdapter);
+        recyclerViewTrailers.setAdapter(treailerAdapter);
+        JSONObject jsonObjectTrailers = NetWorkUtils.getJSONForVideos(movie.getId());
+        JSONObject jsonObjectReview = NetWorkUtils.getJSONForReviews(movie.getId());
+        ArrayList<Trailer> trailers = JSONUtils.getTrailerFromJSON(jsonObjectTrailers);
+        ArrayList<Review> reviews = JSONUtils.getReviewFromJSON(jsonObjectReview);
+
+        reviewAdapter.setReviews(reviews);
+        treailerAdapter.setTrailers(trailers);
     }
 
     @Override

@@ -5,4 +5,5 @@
     <string name="popularity">Самые рейтинговые</string>
     <string name="item_main">Главная</string>
     <string name="item_favourite">Избранное</string>
+    <string name="play_trailer">Play trailer</string>
 </resources>
